@@ -35,6 +35,8 @@ import static org.apache.rocketmq.client.ClientConfig.SEND_MESSAGE_WITH_VIP_CHAN
 @Configuration
 @ConfigurationProperties(prefix = "rocketmq.config")
 public class RMQConfigure {
+    private static final String ROCKET_MQ_AK = "rocketmq.config.accessKey";
+    private static final String ROCKET_MQ_SK = "rocketmq.config.secretKey";
 
     private Logger logger = LoggerFactory.getLogger(RMQConfigure.class);
     //use rocketmq.namesrv.addr first,if it is empty,than use system proerty or system env
@@ -49,9 +51,9 @@ public class RMQConfigure {
 
     private boolean loginRequired = false;
 
-    private String accessKey;
+    private volatile String accessKey = System.getProperty(ROCKET_MQ_AK, System.getenv("ROCKET_MQ_AK"));
 
-    private String secretKey;
+    private volatile String secretKey = System.getProperty(ROCKET_MQ_SK, System.getenv("ROCKET_MQ_SK"));
 
     private boolean useTLS = false;
 
@@ -62,7 +64,11 @@ public class RMQConfigure {
     }
 
     public void setAccessKey(String accessKey) {
-        this.accessKey = accessKey;
+        if (StringUtils.isNotBlank(accessKey)) {
+            this.accessKey = accessKey;
+            System.setProperty(ROCKET_MQ_AK, accessKey);
+            logger.info("setAccessKey accessKey={}", accessKey);
+        }
     }
 
     public String getSecretKey() {
@@ -70,7 +76,11 @@ public class RMQConfigure {
     }
 
     public void setSecretKey(String secretKey) {
-        this.secretKey = secretKey;
+        if (StringUtils.isNotBlank(secretKey)) {
+            this.secretKey = secretKey;
+            System.setProperty(ROCKET_MQ_SK, secretKey);
+            logger.info("setAccessKey accessKey={}", secretKey);
+        }
     }
 
     public String getNamesrvAddr() {
@@ -84,10 +94,12 @@ public class RMQConfigure {
             logger.info("setNameSrvAddrByProperty nameSrvAddr={}", namesrvAddr);
         }
     }
+
     public boolean isACLEnabled() {
         return !(StringUtils.isAnyBlank(this.accessKey, this.secretKey) ||
-                 StringUtils.isAnyEmpty(this.accessKey, this.secretKey));
+                StringUtils.isAnyEmpty(this.accessKey, this.secretKey));
     }
+
     public String getRocketMqDashboardDataPath() {
         return dataPath;
     }
