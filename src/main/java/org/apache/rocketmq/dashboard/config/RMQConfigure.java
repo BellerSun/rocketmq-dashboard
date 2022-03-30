@@ -35,7 +35,9 @@ import static org.apache.rocketmq.client.ClientConfig.SEND_MESSAGE_WITH_VIP_CHAN
 @Configuration
 @ConfigurationProperties(prefix = "rocketmq.config")
 public class RMQConfigure {
+    // rocketmq accessKey environment variable key.
     private static final String ROCKET_MQ_AK = "rocketmq.config.accessKey";
+    // rocketmq secretKey environment variable key.
     private static final String ROCKET_MQ_SK = "rocketmq.config.secretKey";
 
     private Logger logger = LoggerFactory.getLogger(RMQConfigure.class);
@@ -51,8 +53,9 @@ public class RMQConfigure {
 
     private boolean loginRequired = false;
 
+    // user could set accessKey by environment variable
     private volatile String accessKey = System.getProperty(ROCKET_MQ_AK, System.getenv("ROCKET_MQ_AK"));
-
+    // user could set secretKey by environment variable
     private volatile String secretKey = System.getProperty(ROCKET_MQ_SK, System.getenv("ROCKET_MQ_SK"));
 
     private boolean useTLS = false;
